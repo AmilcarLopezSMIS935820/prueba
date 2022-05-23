@@ -1,0 +1,29 @@
+<div class="content">
+    {{#if message}}
+        <div class="alert {{messageClass}}">
+            <p style="text-align: center;">{{message}}</p>
+        </div>
+    {{/if}}
+
+    <br>
+    <div class="row">
+        <div class="col-md-4"></div>        
+        <div class="col-md-4">
+            <form action="/login" method="POST">
+                <div class="mb-3">
+                Email
+                <input type="text" class="form-control" name="email">
+                </div>
+
+                <div class="mb-3">
+                Password
+                <input type="password" class="form-control" name="password">
+                </div>
+                <br>
+
+                <button type="submit" class="btn btn-primary">Registrar</button>
+            </form>
+        </div>
+        </div>
+        </div>
+</div>

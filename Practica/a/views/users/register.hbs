@@ -1,0 +1,38 @@
+<div class="content">
+    {{#if message}}
+        <div class="alert {{messageClass}}">
+            {{message}}
+        </div>
+    {{/if}}
+
+    <br>
+    <div class="row">
+        <div class="col-md-4"></div>        
+        <div class="col-md-4">
+            <form action="/register" method="POST">
+            <div class="mb-3">
+            Fullname
+            <input type="text" class="form-control" name="fullName">
+            </div>
+
+            <div class="mb-3">
+            Email
+            <input type="text" class="form-control" name="email">
+            </div>
+
+            <div class="mb-3">
+            Password
+            <input type="password" class="form-control" name="password">
+            </div>
+
+            <div class="mb-3">
+            confirm Password
+            <input type="password" class="form-control" name="confirmPassword">
+            </div>
+            <br>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Registrar</button>
+        </form>
+        </div>
+    </div>
+</div>
