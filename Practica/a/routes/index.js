@@ -1,7 +1,8 @@
 var express = require('express');
 var router = express.Router();
-const users = require("../usersData");
+//const users = require("../usersData");
 const methods = require("../methods");
+const User = require('../models/user');
 
 const registerPage = "../views/users/register";
 const loginPage = "../views/users/login";
@@ -12,7 +13,14 @@ router.get('/', function(req, res) {
 });
 
 router.get('/home', function(req, res) {
-    res.render('home', { title: 'Express' });
+    if (req.user) {
+        res.render('home', { userName: req.user.fullName });
+    } else {
+        res.render(loginPage, {
+            message: "Debe iniciar sesión para continuar",
+            messageClass: "alert-danger"
+        })
+    }
 });
 
 router.get('/login', function(req, res) {
@@ -23,13 +31,13 @@ router.get('/register', function(req, res) {
     res.render(registerPage);
 });
 
-router.post('/register', (req, res) => {
+router.post('/register', async(req, res) => {
     const { fullName, email, password, confirmPassword } = req.body;
 
     //Validando
     if (password === confirmPassword) {
         //Validar si el correo Existe
-        if (users.data.find(u => u.email === email)) {
+        /*if (users.data.find(u => u.email === email)) {
             res.render(registerPage, {
                 message: "Usuario ya registrado",
                 messageClass: "alert-success"
@@ -43,12 +51,30 @@ router.post('/register', (req, res) => {
             fullName,
             email,
             password: phash
-        });
-        res.render(loginPage, {
-            message: "Registro Completo",
-            messageClass: "alert-success"
-        });
+        });*/
 
+        user = await User.findOne({ email: email })
+            .then(user => {
+                if (user) {
+                    res.render(registerPage, {
+                        message: "El usuario ya esta registrado",
+                        messageClass: "alert-danger"
+                    });
+                } else {
+                    const hashedPassword = methods.getHashedPassword(password);
+                    const userDB = new User({
+                        'fullName': fullName,
+                        'email': email,
+                        'password': hashedPassword
+                    });
+                    userDB.save();
+
+                    res.render(loginPage, {
+                        message: "Registro Completo",
+                        messageClass: "alert-success"
+                    });
+                }
+            })
 
     } else {
         res.render(registerPage, {
@@ -58,12 +84,13 @@ router.post('/register', (req, res) => {
     }
 });
 
-router.post('/login', (req, res) => {
+router.post('/login', async(req, res) => {
     const { email, password } = req.body;
-    const hashedPassword = methods.getHashedPassword(password);
+    const pHash = methods.getHashedPassword(password);
+
 
     //Validar datos
-    const dataUser = users.data.find(u => {
+    /*const dataUser = users.data.find(u => {
         return u.email == email && hashedPassword === u.password;
     });
 
@@ -77,7 +104,27 @@ router.post('/login', (req, res) => {
             message: "Usuario o contraseña no existen",
             messageClass: "alert-danger"
         });
-    }
+    }*/
+
+    user = await User.findOne({ email: email, password: pHash })
+        .then(user => {
+            if (user) {
+                const authToken = methods.generateAuthToken();
+                methods.authTokens[authToken] = user;
+                res.cookie('AuthToken', authToken);
+                res.redirect('/home');
+            } else {
+                res.render(loginPage, {
+                    message: "Usuario o contraseña Invalido",
+                    messageClass: "alert-danger"
+                });
+            }
+        })
+});
+
+router.get('/logout', (req, res) => {
+    res.clearCookie('AuthToken');
+    return res.redirect('/');
 });
 
 module.exports = router;

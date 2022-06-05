@@ -8,8 +8,8 @@ const getHashedPassword = (password) => {
 }
 
 
-const generateTokens = () => {
+const generateAuthToken = () => {
     return crypto.pseudoRandomBytes(30).toString('hex');
 }
 
-module.exports = { authTokens, getHashedPassword, generateTokens }
+module.exports = { authTokens, getHashedPassword, generateAuthToken }

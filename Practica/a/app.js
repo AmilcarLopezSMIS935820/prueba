@@ -4,15 +4,28 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var bodyParser = require('body-parser');
-
+const mongoose = require('mongoose');
+const methods = require('./methods');
+const hbs = require('hbs');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
+var brandsRouter = require('./routes/brands');
+var clientRouter = require('./routes/clients');
+
 var app = express();
+
+mongoose.connect('mongodb://localhost:27017/app', { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(() => console.log("Se establecio conexion a MongoDB"))
+    .catch((e) => console.log("Error", e));
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
+hbs.registerPartials(__dirname + '/views/partials', function(err) {
+
+});
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -21,13 +34,25 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({ extended: false }));
 
+//Inyectar solicitud leyendo AuthTokens
+app.use((req, res, next) => {
+    const authToken = req.cookies['AuthToken'];
+    //Inyectar que el usuario en la solicitud
+    req.user = methods.authTokens[authToken];
+    next();
+})
+
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('/brand', brandsRouter);
+app.use('/client', clientRouter);
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
     next(createError(404));
 });
+
 
 // error handler
 app.use(function(err, req, res, next) {
