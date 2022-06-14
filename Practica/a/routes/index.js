@@ -8,10 +8,10 @@ const registerPage = "../views/users/register";
 const loginPage = "../views/users/login";
 
 /* GET home page. */
-router.get('/', function(req, res) {
+/*router.get('/', function(req, res) {
     res.render('index', { title: 'Express' });
 });
-
+*/
 router.get('/home', function(req, res) {
     if (req.user) {
         res.render('home', { userName: req.user.fullName });
@@ -23,7 +23,7 @@ router.get('/home', function(req, res) {
     }
 });
 
-router.get('/login', function(req, res) {
+router.get('/', function(req, res) {
     res.render(loginPage);
 });
 
@@ -84,7 +84,7 @@ router.post('/register', async(req, res) => {
     }
 });
 
-router.post('/login', async(req, res) => {
+router.post('/', async(req, res) => {
     const { email, password } = req.body;
     const pHash = methods.getHashedPassword(password);
 
